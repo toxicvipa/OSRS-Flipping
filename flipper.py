@@ -4,17 +4,20 @@ from requests.exceptions import HTTPError
 PROFIT_PERCENTAGE = 5
 MEMBERS_ENABLED = False
 MIN_VOLUME = 0
+MIN_MARGIN = 0
 
 if len(sys.argv) < 3:
-    print("Call with arguments: <min margin percentage> <members_enabled> [min volume]")
+    print("Call with arguments: <min margin percentage> <members_enabled> [min volume] [min margin]")
     exit(1)
 
 PROFIT_PERCENTAGE = int(sys.argv[1])
 MEMBERS_ENABLED = sys.argv[2].lower() == 'true'
 if len(sys.argv) > 3:
     MIN_VOLUME = int(sys.argv[3])
+if len(sys.argv) > 4:
+    MIN_MARGIN = int(sys.argv[4])
 
-print(f"Running with parameters Profit: {PROFIT_PERCENTAGE}, Members: {MEMBERS_ENABLED}")
+print(f"Running with parameters Profit: {PROFIT_PERCENTAGE}, Members: {MEMBERS_ENABLED}, Volume >= {MIN_VOLUME}, Min margin: {MIN_MARGIN}")
 
 def find_item_with_id(jsonMap, identifier):
     ind = 0
@@ -48,6 +51,8 @@ try:
         if instaBuy == None or instaSell == None:
             continue
         margin = instaBuy - instaSell
+        if margin < MIN_MARGIN:
+            continue
         percentage = instaSell / 100 * PROFIT_PERCENTAGE
         if margin > percentage:
             itemData = find_item_with_id(mappingJson, key)
